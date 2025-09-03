@@ -16,6 +16,11 @@ jobs:
         with:
           arch: ${{ matrix.arch }}
 
+      - name: Set GIT_SSH_COMMAND on Windows
+        shell: bash
+        run: |
+          echo "GIT_SSH_COMMAND=ssh -F /c/Users/runneradmin/.ssh/config -o \"UserKnownHostsFile /c/Users/runneradmin/.ssh/known_hosts\"" >> "${GITHUB_ENV:?}"
+
       - name: Setup SSH Keys
         uses: webfactory/ssh-agent@v0.9.0
         with:
