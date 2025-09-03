@@ -1,0 +1,35 @@
+name: Build SPD Dump
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [x64, x86]
+        config: [Release, CustDebug]
+    steps:
+      - name: Setup MSVS
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+        with:
+          arch: ${{ matrix.arch }}
+
+      - name: Setup SSH Keys
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+            ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Build SPD Dump (${{ matrix.arch }} - ${{ matrix.config }})
+        run: |
+          git clone git@github.com:TomKing062/spd_dump_it.git
+          cd spd_dump_it
+          New-Item -ItemType Directory -Force -Path ./build/${{ matrix.arch }}/${{ matrix.config }}/
+          msbuild spd_dump.vcxproj /p:Configuration=${{ matrix.config }} /p:Platform=${{ matrix.arch == 'x64' && 'x64' || 'win32' }} /p:OutDir=./build/${{ matrix.arch }}/${{ matrix.config }}/
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: spd_dump_${{ matrix.arch }}_${{ matrix.config }}
+          path: ./spd_dump_it/build/${{ matrix.arch }}/${{ matrix.config }}/
