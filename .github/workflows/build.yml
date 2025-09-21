@@ -30,17 +30,22 @@ jobs:
           github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
           EOF
 
-      - name: Build SPD Dump (${{ matrix.arch }} - ${{ matrix.config }})
-        id: compile
+      - name: Clone SPD Dump
+        shell: cmd
         run: |
           git clone git@github.com:TomKing062/spd_dump_it.git
           cd spd_dump_it
-          echo "GIT_SHA1=$(git rev-parse --short=7 HEAD)" >> "$GITHUB_OUTPUT"
+          for /f "delims=" %a in ('git rev-parse HEAD') do set "hash=%a"
+          echo GIT_SHA1=%hash:~0,7% >> %GITHUB_ENV%
+
+      - name: Build SPD Dump (${{ matrix.arch }} - ${{ matrix.config }})
+        run: |
+          cd spd_dump_it
           New-Item -ItemType Directory -Force -Path ./build/${{ matrix.arch }}/${{ matrix.config }}/
           msbuild spd_dump.vcxproj /p:Configuration=${{ matrix.config }} /p:Platform=${{ matrix.arch == 'x64' && 'x64' || 'win32' }} /p:OutDir=./build/${{ matrix.arch }}/${{ matrix.config }}/
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: spd_dump_it_${{ steps.compile.outputs.GIT_SHA1 }}_${{ matrix.arch }}_${{ matrix.config }}
+          name: spd_dump_it_${{ env.GIT_SHA1 }}_${{ matrix.arch }}_${{ matrix.config }}
           path: ./spd_dump_it/build/${{ matrix.arch }}/${{ matrix.config }}/
