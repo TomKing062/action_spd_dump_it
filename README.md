@@ -16,3 +16,6 @@ so this is the close-source spd_dump, the open-source one will keep achieved.
    `sendpack file` for (7e type length data crc 7e), file must exist
 
    `rawpack file` for (type length data [ignored-crc]), crc and transcode will be performed, file must exist
+
+5. [250927] fix enhanced-kick package error by [250907]
+
