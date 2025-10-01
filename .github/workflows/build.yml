@@ -39,7 +39,7 @@ jobs:
           git clone git@github.com:TomKing062/spd_dump_it.git
           cd spd_dump_it
           for /f "delims=" %%a in ('git rev-parse HEAD') do set "hash=%%a"
-          echo GIT_SHA1=%hash:~0,7% >> %GITHUB_ENV%
+          echo GIT_SHA1=%hash:~0,7%>>%GITHUB_ENV%
 
       - name: Build SPD Dump (${{ matrix.arch }} - ${{ matrix.config }})
         run: |

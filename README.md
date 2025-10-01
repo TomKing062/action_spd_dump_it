@@ -21,5 +21,7 @@ so this is the close-source spd_dump, the open-source one will keep achieved.
 
 5. [250927] fix enhanced-kick package error by [250907]
 
-6. [250930] change spl size to 4MB
+6. ~~[250930] change spl size to 4MB~~
+
+7. [251002] add Ctrl+C handler during R/W operation, get real splloader size with `check_partition()`(getting spl size also func as NAND flash check)
 
