@@ -80,10 +80,8 @@ int main(int argc, char **argv)
         ERR_EXIT("Failed to rename the file.\n");
 
     size_t start_pos = 0, end_pos = 0, sp_pos = 0;
-    uint32_t start_pattern = 0xA9007BFD;
-    uint32_t end_pattern = 0xA8007BFD;
 
-    for (size_t i = 0; i < size; i += 4)
+    for (size_t i = 0; i < size - 0x200; i += 4)
     {
         int count1 = 0, count2 = 0;
         uint32_t current = *(uint32_t *)(mem + 0x200 + i);
