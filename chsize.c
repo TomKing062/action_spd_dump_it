@@ -51,7 +51,7 @@ int main(int argc, char **argv)
         ERR_EXIT("The file is not sprd trusted firmware\n");
     int bPostrom = 0;
     sys_img_header *header = (sys_img_header *)mem;
-    if (header->mPostromOffset + 0x200 < size)
+    if (header->mPostromOffset && header->mPostromOffset + 0x200 < size)
     {
         postrom_main_header *postrom_header = (postrom_main_header *)(mem + header->mPostromOffset);
         if (postrom_header->mImgSize && (header->mPostromOffset + 0x200 + postrom_header->mImgSize <= size))
