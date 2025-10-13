@@ -25,3 +25,5 @@ so this is the close-source spd_dump, the open-source one will keep achieved.
 
 7. [251002] add Ctrl+C handler during R/W operation, get real splloader size with `check_partition()`(getting spl size also func as NAND flash check)
 
+8. [251013] add `dis_avb` (the cmd is DISABLED currently, waiting for CVE disclosure)
+
