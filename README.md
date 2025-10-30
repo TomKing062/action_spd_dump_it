@@ -27,3 +27,5 @@ so this is the close-source spd_dump, the open-source one will keep achieved.
 
 8. [251013] add `dis_avb` (the cmd is DISABLED currently, waiting for CVE disclosure)
 
+9. [251031] add some log for fdl1/spl, [rawdata works on libusb with a commit from ilyakurdyukov](https://github.com/ilyakurdyukov/spreadtrum_flash/commit/ff12d48)
+
