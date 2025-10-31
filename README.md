@@ -21,11 +21,11 @@ so this is the close-source spd_dump, the open-source one will keep achieved.
 
 5. [250927] fix enhanced-kick package error by [250907]
 
-6. ~~[250930] change spl size to 4MB~~
+6. [251002] add Ctrl+C handler during R/W operation, get real splloader size with `check_partition()`(getting spl size also func as NAND flash check)
 
-7. [251002] add Ctrl+C handler during R/W operation, get real splloader size with `check_partition()`(getting spl size also func as NAND flash check)
+7. [251013] add `dis_avb` (the cmd is DISABLED currently, waiting for CVE disclosure)
 
-8. [251013] add `dis_avb` (the cmd is DISABLED currently, waiting for CVE disclosure)
+8. [251030] add some log for fdl1/spl, [rawdata works on libusb with a commit from ilyakurdyukov](https://github.com/ilyakurdyukov/spreadtrum_flash/commit/ff12d48)
 
-9. [251031] add some log for fdl1/spl, [rawdata works on libusb with a commit from ilyakurdyukov](https://github.com/ilyakurdyukov/spreadtrum_flash/commit/ff12d48)
+9. [251031] fix crush caused by [251013] (happens when savepath is not NULL)
 
