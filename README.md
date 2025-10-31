@@ -27,5 +27,5 @@ so this is the close-source spd_dump, the open-source one will keep achieved.
 
 8. [251030] add some log for fdl1/spl, [rawdata works on libusb with a commit from ilyakurdyukov](https://github.com/ilyakurdyukov/spreadtrum_flash/commit/ff12d48)
 
-9. [251031] fix crush caused by [251013] (happens when savepath is not NULL)
+9. [251031] fix crush caused by [251013] (happens when savepath is not NULL), change GIT_VER to commit count
 

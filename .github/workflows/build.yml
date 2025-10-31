@@ -40,6 +40,8 @@ jobs:
           cd spd_dump_it
           for /f "delims=" %%a in ('git rev-parse HEAD') do set "hash=%%a"
           echo GIT_SHA1=%hash:~0,7%>>%GITHUB_ENV%
+          for /f "delims=" %%a in ('git rev-list HEAD --count') do set "ver=%%a"
+          echo GIT_VER=%ver%>>%GITHUB_ENV%
 
       - name: Build SPD Dump (${{ matrix.arch }} - ${{ matrix.config }})
         run: |
@@ -50,5 +52,5 @@ jobs:
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v5
         with:
-          name: spd_dump_it_${{ env.GIT_SHA1 }}_${{ matrix.arch }}_${{ matrix.config }}
+          name: spd_dump_it_${{ env.GIT_VER }}_${{ env.GIT_SHA1 }}_${{ matrix.arch }}_${{ matrix.config }}
           path: ./spd_dump_it/build/${{ matrix.arch }}/${{ matrix.config }}/
