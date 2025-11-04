@@ -29,3 +29,5 @@ so this is the close-source spd_dump, the open-source one will keep achieved.
 
 9. [251031] fix crush caused by [251013] (happens when savepath is not NULL), change GIT_VER to commit count
 
+10. [251104] change gen_tos and fix spl size when `-r`
+

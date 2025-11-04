@@ -79,8 +79,8 @@ int main(int argc, char **argv)
     if (rename("temp", filename))
         ERR_EXIT("Failed to rename the file.\n");
 
-    size_t start_pos = 0, end_pos = 0, sp_pos = 0;
-
+    size_t start_pos = 0, end_pos = 0, sp_pos = 0, last_pos = 0;
+    int mov_count = 0;
     for (size_t i = 0; i < size - 0x200; i += 4)
     {
         int count1 = 0, count2 = 0;
@@ -112,8 +112,16 @@ int main(int argc, char **argv)
                     {
                         if (*(uint16_t *)&mem[0x200 + m] == 0x3E0)
                         {
-                            *(uint32_t *)&mem[0x200 + m] = 0x52800000;
-                            printf("patch mov at 0x%zx\n", 0x200 + m);
+                            //*(uint32_t *)&mem[0x200 + m] = 0x52800000;
+                            if (*(uint32_t *)&mem[0x200 + m] == 0x52800000)
+                            {
+                                printf("dis_avb: patched!!!\n");
+                                free(mem);
+                                return 0;
+                            }
+                            printf("detected mov at 0x%zx\n", 0x200 + m);
+                            last_pos = m;
+                            mov_count++;
                         }
                     }
                 }
@@ -122,6 +130,13 @@ int main(int argc, char **argv)
             sp_pos = 0;
         }
     }
+    if (mov_count < 2)
+    {
+        printf("dis_avb: skip saving!!!\n");
+        free(mem);
+        return 0;
+    }
+    *(uint32_t *)&mem[0x200 + last_pos] = 0x52800000;
     file = fopen("tos-noavb.bin", "wb");
     if (file == NULL)
         ERR_EXIT("Failed to create the file.\n");
