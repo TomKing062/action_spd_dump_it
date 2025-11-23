@@ -31,3 +31,5 @@ so this is the close-source spd_dump, the open-source one will keep achieved.
 
 10. [251104] change gen_tos and fix spl size when `-r`
 
+11. [251123] `--kick`=`--kickto 2`, change gen_tos algorithm
+

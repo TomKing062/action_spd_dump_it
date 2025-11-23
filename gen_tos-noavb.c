@@ -79,64 +79,74 @@ int main(int argc, char **argv)
     if (rename("temp", filename))
         ERR_EXIT("Failed to rename the file.\n");
 
-    size_t start_pos = 0, end_pos = 0, sp_pos = 0, last_pos = 0;
+    size_t last_start_pos = 0, start_pos = 0, last_pos = 0;
     int mov_count = 0;
-    for (size_t i = 0; i < size - 0x200; i += 4)
+    for (size_t i = 0x200; i < size; i += 4)
     {
-        int count1 = 0, count2 = 0;
-        uint32_t current = *(uint32_t *)(mem + 0x200 + i);
-        current = current & 0xFF00FFFF;
-        if (current == 0xA9007BFD)
-            start_pos = i;
-        else if (current == 0x910003BF)
-            sp_pos = i;
-        else if (start_pos && current == 0xA8007BFD)
+        uint32_t current = *(uint32_t *)&mem[i];
+        if (current == 0xD65F03C0 || (current & 0xFF00FFFF) == 0xA8007BFD)
         {
-            end_pos = i;
-            if (sp_pos)
+            last_start_pos = 0;
+            start_pos = 0;
+        }
+        else if ((current & 0xFF00FFFF) == 0xA9007BFD)
+        {
+            if (start_pos)
+                last_start_pos = start_pos;
+            start_pos = i;
+        }
+        else if (start_pos)
+        {
+            int count1 = 0, count2 = 0, ldp_count = 0, ret_flag = 0;
+            for (int m = 0; m < 20; m += 4)
             {
-                for (int m = start_pos; m < end_pos; m += 4)
+                if (*(uint8_t *)&mem[i + m + 3] == 0xA9)
+                    ldp_count++;
+                else
+                    break;
+            }
+            if (ldp_count == 5)
+            {
+                for (int m = 24; m < 32; m += 4)
                 {
-                    if (*(uint32_t *)&mem[0x200 + m] >> 16 == 0x9400)
-                    {
-                        count1++;
-                    }
-                    else if (*(uint32_t *)&mem[0x200 + m] >> 16 == 0xb400)
-                    {
-                        count2++;
-                    }
+                    if (*(uint32_t *)&mem[i + m] == 0xD65F03C0)
+                        ret_flag++;
                 }
-                if (count1 && count2 && count1 + count2 > 2)
+                if (ret_flag)
                 {
-                    for (int m = sp_pos + 4; m < end_pos; m += 4)
+                    if (*(uint16_t *)&mem[i - 4] == 0x3E0 && *(uint8_t *)&mem[i - 7] == 0x3)
                     {
-                        if (*(uint16_t *)&mem[0x200 + m] == 0x3E0)
+                        if (start_pos > i && last_start_pos)
+                            start_pos = last_start_pos;
+                        for (int m = start_pos; m < i; m += 4)
                         {
-                            //*(uint32_t *)&mem[0x200 + m] = 0x52800000;
-                            if (*(uint32_t *)&mem[0x200 + m] == 0x52800000)
+                            if (*(uint32_t *)&mem[m] >> 16 == 0x9400)
                             {
-                                printf("dis_avb: patched!!!\n");
-                                free(mem);
-                                return 0;
+                                count1++;
                             }
-                            printf("detected mov at 0x%zx\n", 0x200 + m);
-                            last_pos = m;
+                            else if (*(uint32_t *)&mem[m] >> 16 == 0xb400)
+                            {
+                                count2++;
+                            }
+                        }
+                        if (count1 && count2 && count1 + count2 > 2)
+                        {
+                            printf("detected mov at 0x%zx\n", i - 4);
+                            last_pos = i - 4;
                             mov_count++;
                         }
                     }
                 }
             }
-            start_pos = 0;
-            sp_pos = 0;
         }
     }
-    if (mov_count < 2)
+    if (mov_count < 2 || mov_count > 3)
     {
         printf("dis_avb: skip saving!!!\n");
         free(mem);
         return 0;
     }
-    *(uint32_t *)&mem[0x200 + last_pos] = 0x52800000;
+    *(uint32_t *)&mem[last_pos] = 0x52800000;
     file = fopen("tos-noavb.bin", "wb");
     if (file == NULL)
         ERR_EXIT("Failed to create the file.\n");
