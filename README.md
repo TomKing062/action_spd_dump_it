@@ -33,3 +33,5 @@ so this is the close-source spd_dump, the open-source one will keep achieved.
 
 11. [251123] `--kick`=`--kickto 2`, change gen_tos algorithm
 
+12. [251211] fix kick error by [251123], add `mergenv-xml xml new_nv` and `mergenv-cfg cfg new_nv`
+
