@@ -50,7 +50,7 @@ jobs:
           msbuild spd_dump.vcxproj /p:Configuration=${{ matrix.config }} /p:Platform=${{ matrix.arch == 'x64' && 'x64' || 'win32' }} /p:OutDir=./build/${{ matrix.arch }}/${{ matrix.config }}/
 
       - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: spd_dump_it_${{ env.GIT_VER }}_${{ env.GIT_SHA1 }}_${{ matrix.arch }}_${{ matrix.config }}
           path: ./spd_dump_it/build/${{ matrix.arch }}/${{ matrix.config }}/
