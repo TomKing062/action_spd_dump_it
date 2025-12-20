@@ -33,6 +33,7 @@ static uint8_t *loadfile(const char *fn, size_t *num, size_t extra)
     return buf;
 }
 
+#define max_size(x, y) ((x) > (y) ? (x) : (y))
 int main(int argc, char **argv)
 {
     if (argc < 2)
@@ -49,39 +50,37 @@ int main(int argc, char **argv)
 
     if (*(uint32_t *)mem != 0x42544844)
         ERR_EXIT("The file is not sprd trusted firmware\n");
-    int bPostrom = 0;
+    size_t sizewithPostrom = 0;
     sys_img_header *header = (sys_img_header *)mem;
     if (header->mPostromOffset && header->mPostromOffset + 0x200 < size)
     {
         postrom_main_header *postrom_header = (postrom_main_header *)(mem + header->mPostromOffset);
         if (postrom_header->mImgSize && (header->mPostromOffset + 0x200 + postrom_header->mImgSize <= size))
         {
-            size = header->mPostromOffset + 0x200 + postrom_header->mImgSize;
-            printf("0x%zx\n", size);
-            bPostrom = 1;
+            sizewithPostrom = header->mPostromOffset + 0x200 + postrom_header->mImgSize;
         }
     }
-    if (!bPostrom)
+    if (!header->mImgSize)
+        ERR_EXIT("broken sprd trusted firmware\n");
+    sprdsignedimageheader *footer = (sprdsignedimageheader *)&mem[header->mImgSize + 0x200];
+    if (header->mImgSize + 0x200 + sizeof(sprdsignedimageheader) >= size)
     {
-        if (!header->mImgSize)
-            ERR_EXIT("broken sprd trusted firmware\n");
-        sprdsignedimageheader *footer = (sprdsignedimageheader *)&mem[header->mImgSize + 0x200];
-        if (header->mImgSize + 0x200 + sizeof(sprdsignedimageheader) >= size)
-        {
-            printf("0x%zx\n", size);
-            free(mem);
-            return 0;
-        }
-        if (footer->cert_dbg_developer_size && footer->cert_dbg_developer_offset)
-            size = footer->cert_dbg_developer_size + footer->cert_dbg_developer_offset;
-        else if (footer->priv_size && footer->priv_offset)
-            size = footer->priv_size + footer->priv_offset;
-        else if (footer->cert_size && footer->cert_offset)
-            size = footer->cert_size + footer->cert_offset;
-        else
-            size = header->mImgSize + 0x200;
         printf("0x%zx\n", size);
+        free(mem);
+        return 0;
     }
+    if (footer->cert_dbg_developer_size && footer->cert_dbg_developer_offset)
+        size = max_size(size, footer->cert_dbg_developer_size + footer->cert_dbg_developer_offset);
+    if (footer->priv_size && footer->priv_offset)
+        size = max_size(size, footer->priv_size + footer->priv_offset);
+    if (footer->cert_size && footer->cert_offset)
+        size = max_size(size, footer->cert_size + footer->cert_offset);
+    if (footer->payload_size && footer->payload_offset)
+        size = max_size(size, footer->payload_size + footer->payload_offset);
+    else
+        size = max_size(size, header->mImgSize + 0x200);
+    size = max_size(size, sizewithPostrom);
+    printf("0x%zx\n", size);
 
     FILE *file = fopen("temp", "wb");
     if (file == NULL)
