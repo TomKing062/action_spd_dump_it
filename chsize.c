@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 
     if (*(uint32_t *)mem != 0x42544844)
         ERR_EXIT("The file is not sprd trusted firmware\n");
-    size_t sizewithPostrom = 0;
+    size_t sizewithPostrom = 0, size_in_footer = 0;
     sys_img_header *header = (sys_img_header *)mem;
     if (header->mPostromOffset && header->mPostromOffset + 0x200 < size)
     {
@@ -70,16 +70,16 @@ int main(int argc, char **argv)
         return 0;
     }
     if (footer->cert_dbg_developer_size && footer->cert_dbg_developer_offset)
-        size = max_size(size, footer->cert_dbg_developer_size + footer->cert_dbg_developer_offset);
+        size_in_footer = max_size(size_in_footer, footer->cert_dbg_developer_size + footer->cert_dbg_developer_offset);
     if (footer->priv_size && footer->priv_offset)
-        size = max_size(size, footer->priv_size + footer->priv_offset);
+        size_in_footer = max_size(size_in_footer, footer->priv_size + footer->priv_offset);
     if (footer->cert_size && footer->cert_offset)
-        size = max_size(size, footer->cert_size + footer->cert_offset);
+        size_in_footer = max_size(size_in_footer, footer->cert_size + footer->cert_offset);
     if (footer->payload_size && footer->payload_offset)
-        size = max_size(size, footer->payload_size + footer->payload_offset);
+        size_in_footer = max_size(size_in_footer, footer->payload_size + footer->payload_offset);
     else
-        size = max_size(size, header->mImgSize + 0x200);
-    size = max_size(size, sizewithPostrom);
+        size_in_footer = max_size(size_in_footer, header->mImgSize + 0x200);
+    size = max_size(size_in_footer, sizewithPostrom);
     printf("0x%zx\n", size);
 
     FILE *file = fopen("temp", "wb");
