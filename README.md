@@ -35,3 +35,5 @@ so this is the close-source spd_dump, the open-source one will keep achieved.
 
 12. [251211] fix kick error by [251123], add `mergenv-xml xml new_nv` and `mergenv-cfg cfg new_nv`
 
+13. [250103] (for ums9360/ums9632) fix chsize, kick, emmc/ufs detection
+

@@ -31,7 +31,7 @@ typedef struct
 typedef struct
 {
     uint32_t mUnknownNum;
-    uint32_t mOffset; // &postrom_main_header + mOffset = PostromPayload_addr
+    uint32_t mUnknownNum2; // the algorithm/type of rotpk ?
     uint32_t mPostromPayloadSize;
     uint8_t ROTPK_HASH[32]; // sha256, this is exactly the cpu fused value
 } postrom_child_header;
