@@ -37,3 +37,5 @@ so this is the close-source spd_dump, the open-source one will keep achieved.
 
 13. [250103] (for ums9360/ums9632) fix chsize, kick, emmc/ufs detection
 
+14. [250108] change default dir to `./YYMMDD_hhmmss` and `./tmp`, add `g_w_force 0/1` for `w_force`, `dis_avb` entry is open now
+
