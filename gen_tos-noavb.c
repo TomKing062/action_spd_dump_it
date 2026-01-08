@@ -79,7 +79,8 @@ int main(int argc, char **argv)
     if (rename("temp", filename))
         ERR_EXIT("Failed to rename the file.\n");
 
-    size_t last_start_pos = 0, start_pos = 0, last_pos = 0;
+    size_t pmov[3] = {0};
+    size_t last_start_pos = 0, start_pos = 0;
     int mov_count = 0;
     for (size_t i = 0x200; i < size; i += 4)
     {
@@ -116,8 +117,6 @@ int main(int argc, char **argv)
                 {
                     if (*(uint16_t *)&mem[i - 4] == 0x3E0 && *(uint8_t *)&mem[i - 7] == 0x3)
                     {
-                        if (start_pos > i && last_start_pos)
-                            start_pos = last_start_pos;
                         for (int m = start_pos; m < i; m += 4)
                         {
                             if (*(uint32_t *)&mem[m] >> 16 == 0x9400)
@@ -132,21 +131,35 @@ int main(int argc, char **argv)
                         if (count1 && count2 && count1 + count2 > 2)
                         {
                             printf("detected mov at 0x%zx\n", i - 4);
-                            last_pos = i - 4;
-                            mov_count++;
+                            if (mov_count < 3)
+                            {
+                                pmov[mov_count] = i - 4;
+                                mov_count++;
+                            }
+                            else
+                            {
+                                pmov[0] = pmov[1];
+                                pmov[1] = pmov[2];
+                                pmov[2] = i - 4;
+                            }
                         }
                     }
                 }
             }
         }
     }
-    if (mov_count < 2 || mov_count > 3)
+    if (mov_count < 2)
     {
         printf("dis_avb: skip saving!!!\n");
         free(mem);
         return 0;
     }
-    *(uint32_t *)&mem[last_pos] = 0x52800000;
+    if (mov_count > 2)
+        mov_count = (pmov[2] - 2 * pmov[1] + pmov[0] > 0) ? 1 : 2;
+    else
+        mov_count--;
+    printf("patch mov at 0x%zx\n", pmov[mov_count]);
+    *(uint32_t *)&mem[mov_count] = 0x52800000;
     file = fopen("tos-noavb.bin", "wb");
     if (file == NULL)
         ERR_EXIT("Failed to create the file.\n");

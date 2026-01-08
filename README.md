@@ -39,3 +39,5 @@ so this is the close-source spd_dump, the open-source one will keep achieved.
 
 14. [260108] change default dir to `./YYMMDD_hhmmss` and `./tmp`, add `g_w_force 0/1` for `w_force`, `dis_avb` entry is open now
 
+15. [260109] FULLY fix kick issue, update gen_tos algorithm to support ums9360/ums9632
+
