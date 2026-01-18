@@ -159,7 +159,7 @@ int main(int argc, char **argv)
     else
         mov_count--;
     printf("patch mov at 0x%zx\n", pmov[mov_count]);
-    *(uint32_t *)&mem[mov_count] = 0x52800000;
+    *(uint32_t *)&mem[pmov[mov_count]] = 0x52800000;
     file = fopen("tos-noavb.bin", "wb");
     if (file == NULL)
         ERR_EXIT("Failed to create the file.\n");
