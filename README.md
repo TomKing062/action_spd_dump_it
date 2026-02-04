@@ -23,7 +23,7 @@ so this is the close-source spd_dump, the open-source one will keep achieved.
 
 6. [251002] add Ctrl+C handler during R/W operation, get real splloader size with `check_partition()`(getting spl size also func as NAND flash check)
 
-7. [251013] add `dis_avb` (the cmd is DISABLED currently, waiting for CVE disclosure)
+7. [251013] add `dis_avb` ~~(the cmd is DISABLED currently, waiting for CVE disclosure)~~
 
 8. [251030] add some log for fdl1/spl, [rawdata works on libusb with a commit from ilyakurdyukov](https://github.com/ilyakurdyukov/spreadtrum_flash/commit/ff12d48)
 
@@ -40,4 +40,6 @@ so this is the close-source spd_dump, the open-source one will keep achieved.
 14. [260108] change default dir to `./YYMMDD_hhmmss` and `./tmp`, add `g_w_force 0/1` for `w_force`, `dis_avb` entry is open now
 
 15. [260109] FULLY fix kick issue, update gen_tos algorithm to support ums9360/ums9632
+
+16. [260205] let kick-timeout fallback to main(), fix write `downloadnv` (NOTE: `factorynv` and `calinv` are unwritable due to incorrect code implementation by UNISOC)
 
