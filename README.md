@@ -5,6 +5,10 @@ so this is the close-source spd_dump, the open-source one will keep achieved.
 
 #### [Prebuilt Program for Windows (No Login Needed; 404 Error Possible; Version May Not Be Latest)](https://nightly.link/TomKing062/action_spd_dump_it/workflows/build/main)
 
+### Note
+
+​	if you use spd_dump with auto-unlock-batches, download oldpath version.
+
 ### Diffs to 250726
 
 1. [250904] change timeout to 3s, remove [BSL_CMD_READ_FLASH_INFO check during FDL2 handshake](https://github.com/TomKing062/spreadtrum_flash/commit/a76a03e1f4a814203d3e5eae3d1f8e38b14b9376#diff-ecc2b15491061308698809ccbc6cc4a5026f81036c8bc4cb60828abf284128b4R689)
@@ -42,4 +46,6 @@ so this is the close-source spd_dump, the open-source one will keep achieved.
 15. [260109] FULLY fix kick issue, update gen_tos algorithm to support ums9360/ums9632
 
 16. [260205] let kick-timeout fallback to main(), fix write `downloadnv` (NOTE: `factorynv` and `calinv` are unwritable due to incorrect code implementation by UNISOC)
+
+17. [260208] allow write `factorynv`. NOTE: write downloadnv first, then write factorynv
 
