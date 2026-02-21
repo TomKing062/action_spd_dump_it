@@ -49,3 +49,9 @@ so this is the close-source spd_dump, the open-source one will keep achieved.
 
 17. [260208] allow write `factorynv`. NOTE: write downloadnv first, then write factorynv
 
+18. [260222] SUPPORT flash PAC by `pac FILE` (only for main, not added to oldpath version)
+
+    ​	only support partname based part-table (ubifs or gpt type), the old id based table (RDA type) is not added yet
+
+    ​	region selection func (like PAC from OPPO/Realme) is not added yet
+
