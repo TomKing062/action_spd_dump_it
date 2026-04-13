@@ -7,7 +7,7 @@ so this is the close-source spd_dump, the open-source one will keep achieved.
 
 ### Note
 
-​	if you use spd_dump with auto-unlock-batches, download oldpath version.
+if you use spd_dump with auto-unlock-batches, download oldpath version.
 
 ### Diffs to 250726
 
@@ -47,7 +47,7 @@ so this is the close-source spd_dump, the open-source one will keep achieved.
 
 16. [260205] let kick-timeout fallback to main(), fix write `downloadnv` (NOTE: `factorynv` and `calinv` are unwritable due to incorrect code implementation by UNISOC)
 
-17. [260208] allow write `factorynv`. NOTE: write downloadnv first, then write factorynv
+17. [260208] ~~allow write `factorynv`~~
 
 18. [260222] SUPPORT flash PAC by `pac FILE` (only for main, not added to oldpath version)
 
@@ -55,3 +55,4 @@ so this is the close-source spd_dump, the open-source one will keep achieved.
 
     ​	region selection func (like PAC from OPPO/Realme) is not added yet
 
+19. [260414] block write `factorynv`, fix potential bug during `load_partitions`, new path management for main branch
