@@ -1,58 +1,109 @@
-## spd_dump_it
+# spd_dump_it
 so this is the close-source spd_dump, the open-source one will keep achieved.
 
-#### [Prebuilt Program for Windows (Login Needed)](https://github.com/TomKing062/action_spd_dump_it/actions)
+### [Prebuilt Program for Windows (Login Needed)](https://github.com/TomKing062/action_spd_dump_it/actions)
 
-#### [Prebuilt Program for Windows (No Login Needed; 404 Error Possible; Version May Not Be Latest)](https://nightly.link/TomKing062/action_spd_dump_it/workflows/build/main)
+### [Prebuilt Program for Windows (No Login Needed; 404 Error Possible; Version May Not Be Latest)](https://nightly.link/TomKing062/action_spd_dump_it/workflows/build/main)
 
-### Note
+## Note
 
 if you use spd_dump with auto-unlock-batches, download oldpath version.
 
-### Diffs to 250726
+## Diffs to 250726
 
-1. [250904] change timeout to 3s, remove [BSL_CMD_READ_FLASH_INFO check during FDL2 handshake](https://github.com/TomKing062/spreadtrum_flash/commit/a76a03e1f4a814203d3e5eae3d1f8e38b14b9376#diff-ecc2b15491061308698809ccbc6cc4a5026f81036c8bc4cb60828abf284128b4R689)
+### IO
 
-2. [250905] fix argc issue during SPRD4
+#### Kick
 
-3. [250907] import enhanced-kick from async-full branch [Co-Authored-By @YC-nw]
+* [Feature] introduce enhanced-kick (250907) *(Co-Authored-By @YC-nw)*
+* [Fix] resolve enhanced-kick packet error (250927)
+* [Change] `--kick` now equals `--kickto 2` (251123)
+* [Fix] fix kick failure (251211)
+* [Fix] fully stabilize kick (260109)
+* [Change] kick timeout now falls back to `main()` (260205)
 
-4. [250921] `sendcmd type file` for type only, if file exists, data and length will be filled, this cmd can execute when file not exists
 
-   `sendpack file` for (7e type length data crc 7e), file must exist
+#### NAND flash check (FDL2 handshake)
+* [Change] remove BSL_CMD_READ_FLASH_INFO check due to potential disconnection issues (250904)
 
-   `rawpack file` for (type length data [ignored-crc]), crc and transcode will be performed, file must exist
+* [Change] NAND flash check is now performed via check_partition() (251002)
 
-5. [250927] fix enhanced-kick package error by [250907]
+---
 
-6. [251002] add Ctrl+C handler during R/W operation, get real splloader size with `check_partition()`(getting spl size also func as NAND flash check)
+### Program
 
-7. [251013] add `dis_avb` ~~(the cmd is DISABLED currently, waiting for CVE disclosure)~~
+* [Fix] argc handling issue during SPRD4 (250905)
+* [Feature] add Ctrl+C handler during R/W operations (251002)
+* [Feature] add logging for fdl1/spl; rawdata works on libusb [commit](https://github.com/ilyakurdyukov/spreadtrum_flash/commit/ff12d48) (251030)
+* [Fix] crash when `savepath != NULL` (251031)
+* [Change] `GIT_VER` now uses commit count (251031)
+* [Change] update `gen_tos` algorithm (251104, 260109)
+* [Fix] correct spl size handling when using `-r` (251104)
+* [Feature] add `dis_avb` (251013, 260108)
+* [Fix] chsize, kick, and eMMC/UFS detection for ums9360/ums9632 (260103)
+* [Fix] potential bug in `load_partitions` (260414)
 
-8. [251030] add some log for fdl1/spl, [rawdata works on libusb with a commit from ilyakurdyukov](https://github.com/ilyakurdyukov/spreadtrum_flash/commit/ff12d48)
+---
 
-9. [251031] fix crush caused by [251013] (happens when savepath is not NULL), change GIT_VER to commit count
+### CLI / Functions
 
-10. [251104] change gen_tos and fix spl size when `-r`
+* [Feature] `sendcmd type file`
 
-11. [251123] `--kick`=`--kickto 2`, change gen_tos algorithm
+  * supports "type-only" mode
+  * if file exists: auto-fill data and length
+  * can execute even if file does not exist (250921)
 
-12. [251211] fix kick error by [251123], add `mergenv-xml xml new_nv` and `mergenv-cfg cfg new_nv`
+* [Feature] `sendpack file`
 
-13. [260103] (for ums9360/ums9632) fix chsize, kick, emmc/ufs detection
+  * format: `(7e type length data crc 7e)`
+  * requires file (250921)
 
-14. [260108] change default dir to `./YYMMDD_hhmmss` and `./tmp`, add `g_w_force 0/1` for `w_force`, `dis_avb` entry is open now
+* [Feature] `rawpack file`
 
-15. [260109] FULLY fix kick issue, update gen_tos algorithm to support ums9360/ums9632
+  * format: `(type length data [ignored-crc])`
+  * CRC and transcode handled internally
+  * requires file (250921)
 
-16. [260205] let kick-timeout fallback to main(), fix write `downloadnv` (NOTE: `factorynv` and `calinv` are unwritable due to incorrect code implementation by UNISOC)
+* [Feature] `mergenv-xml xml new_nv` (251211)
 
-17. [260208] ~~allow write `factorynv`~~
+* [Feature] `mergenv-cfg cfg new_nv` (251211)
 
-18. [260222] SUPPORT flash PAC by `pac FILE` (only for main, not added to oldpath version)
+* [Feature] `g_w_force 0/1` to control `w_force` (260108)
 
-    ​	only support partname based part-table (ubifs or gpt type), the old id based table (RDA type) is not added yet
+* [Fix] `downloadnv` write operation (260205)
 
-    ​	region selection func (like PAC from OPPO/Realme) is not added yet
+   `factorynv` and `calinv` are **not writable** due to incorrect implementation in UNISOC firmware
 
-19. [260414] block write `factorynv`, fix potential bug during `load_partitions`, new path management for main branch
+---
+
+### PAC Flashing
+
+* [Feature] support flashing PAC firmware (main branch only) (260222)
+
+Supported forms:
+
+```
+spd_dump pac <PAC> reset
+spd_dump exec_addr <addr> pac <PAC> reset
+spd_dump exec_addr <addr> fdl <fdl1> <addr1> fdl <fdl2> <addr2> exec pac <PAC> reset
+```
+
+Notes:
+
+* supports custom FDL during flashing
+* only supports **partname-based partition table** (UBIFS / GPT)
+* legacy **ID-based (RDA) table not supported**
+* region selection (e.g. OPPO/Realme PAC) not supported
+
+---
+
+### Path Management
+
+* [Change] default output directory:
+
+  * `./YYMMDD_hhmmss`
+  * `./YYMMDD_hhmmss/tmp` (260414)
+
+* [Change] previously:
+
+  * `./YYMMDD_hhmmss` and `./tmp` (260108)
