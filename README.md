@@ -22,7 +22,6 @@ if you use spd_dump with auto-unlock-batches, download oldpath version.
 * [Fix] fully stabilize kick (260109)
 * [Change] kick timeout now falls back to `main()` (260205)
 
-
 #### NAND flash check (FDL2 handshake)
 * [Change] remove BSL_CMD_READ_FLASH_INFO check due to potential disconnection issues (250904)
 
@@ -34,7 +33,7 @@ if you use spd_dump with auto-unlock-batches, download oldpath version.
 
 * [Fix] argc handling issue during SPRD4 (250905)
 * [Feature] add Ctrl+C handler during R/W operations (251002)
-* [Feature] add logging for fdl1/spl; rawdata works on libusb [commit](https://github.com/ilyakurdyukov/spreadtrum_flash/commit/ff12d48) (251030)
+* [Feature] add logging for fdl1/spl; rawdata works on libusb [by commit](https://github.com/ilyakurdyukov/spreadtrum_flash/commit/ff12d48) (251030)
 * [Fix] crash when `savepath != NULL` (251031)
 * [Change] `GIT_VER` now uses commit count (251031)
 * [Change] update `gen_tos` algorithm (251104, 260109)
@@ -42,10 +41,12 @@ if you use spd_dump with auto-unlock-batches, download oldpath version.
 * [Feature] add `dis_avb` (251013, 260108)
 * [Fix] chsize, kick, and eMMC/UFS detection for ums9360/ums9632 (260103)
 * [Fix] potential bug in `load_partitions` (260414)
+* [Fix] `downloadnv` write operation (260205, 260418)
 
+   `factorynv` and `calinv` are **not writable**
 ---
 
-### CLI / Functions
+### New Features
 
 * [Feature] `sendcmd type file`
 
@@ -69,14 +70,6 @@ if you use spd_dump with auto-unlock-batches, download oldpath version.
 * [Feature] `mergenv-cfg cfg new_nv` (251211)
 
 * [Feature] `g_w_force 0/1` to control `w_force` (260108)
-
-* [Fix] `downloadnv` write operation (260205)
-
-   `factorynv` and `calinv` are **not writable** due to incorrect implementation in UNISOC firmware
-
----
-
-### PAC Flashing
 
 * [Feature] support flashing PAC firmware (main branch only) (260222)
 
@@ -103,7 +96,3 @@ Notes:
 
   * `./YYMMDD_hhmmss`
   * `./YYMMDD_hhmmss/tmp` (260414)
-
-* [Change] previously:
-
-  * `./YYMMDD_hhmmss` and `./tmp` (260108)
