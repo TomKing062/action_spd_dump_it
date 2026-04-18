@@ -29,49 +29,40 @@ if you use spd_dump with auto-unlock-batches, download oldpath version.
 
 ---
 
-### Program
+### New Commands
 
-* [Fix] argc handling issue during SPRD4 (250905)
-* [Feature] add Ctrl+C handler during R/W operations (251002)
-* [Feature] add logging for fdl1/spl; rawdata works on libusb [by commit](https://github.com/ilyakurdyukov/spreadtrum_flash/commit/ff12d48) (251030)
-* [Fix] crash when `savepath != NULL` (251031)
-* [Change] `GIT_VER` now uses commit count (251031)
-* [Change] update `gen_tos` algorithm (251104, 260109)
-* [Fix] correct spl size handling when using `-r` (251104)
-* [Feature] add `dis_avb` (251013, 260108)
-* [Fix] chsize, kick, and eMMC/UFS detection for ums9360/ums9632 (260103)
-* [Fix] potential bug in `load_partitions` (260414)
-* [Fix] `downloadnv` write operation (260205, 260418)
-
-   `factorynv` and `calinv` are **not writable**
----
-
-### New Features
-
-* [Feature] `sendcmd type file`
+* [Command] `sendcmd type file` (250921)
 
   * supports "type-only" mode
   * if file exists: auto-fill data and length
-  * can execute even if file does not exist (250921)
+  * can execute even if file does not exist
 
-* [Feature] `sendpack file`
+* [Command] `sendpack file` (250921)
 
   * format: `(7e type length data crc 7e)`
-  * requires file (250921)
+  * requires file
 
-* [Feature] `rawpack file`
+* [Command] `rawpack file` (250921)
 
   * format: `(type length data [ignored-crc])`
   * CRC and transcode handled internally
-  * requires file (250921)
+  * requires file
 
-* [Feature] `mergenv-xml xml new_nv` (251211)
+* [Command] `dis_avb` (251013, 260108)
 
-* [Feature] `mergenv-cfg cfg new_nv` (251211)
+   ex: `dis_avb_ex sml_or_teecfg tos`, which saves to tos-noavb-bsp-bypassed (not flash to device directly)
 
-* [Feature] `g_w_force 0/1` to control `w_force` (260108)
+* [Command] `mergenv-xml xml new_nv` (251211)
 
-* [Feature] support flashing PAC firmware (main branch only) (260222)
+   ex: `mergenv-xml-ex xml old_nv new_nv`, which saves to tmp/nvmerged (not flash to device directly)
+
+* [Command] `mergenv-cfg cfg new_nv` (251211)
+
+   ex: `mergenv-cfg-ex cfg old_nv new_nv`, which saves to tmp/nvmerged (not flash to device directly)
+
+* [Command] `g_w_force 0/1` to control `w_force` (260108)
+
+* [Command] `pac PAC_FILE` (support flashing PAC firmware, main branch only) (260222)
 
 Supported forms:
 
@@ -85,14 +76,30 @@ Notes:
 
 * supports custom FDL during flashing
 * only supports **partname-based partition table** (UBIFS / GPT)
-* legacy **ID-based (RDA) table not supported**
-* region selection (e.g. OPPO/Realme PAC) not supported
+* legacy **ID-based (RDA) table** not supported
+* region/OCDT selection (e.g. OPPO/Realme PAC) not supported
 
 ---
 
 ### Path Management
 
-* [Change] default output directory:
+* [Change] default output directory (260414)
 
   * `./YYMMDD_hhmmss`
-  * `./YYMMDD_hhmmss/tmp` (260414)
+  * `./YYMMDD_hhmmss/tmp` 
+---
+
+### Misc
+
+* [Fix] argc handling issue during SPRD4 (250905)
+* [Feature] add Ctrl+C handler during R/W operations (251002)
+* [Feature] add logging for fdl1/spl; rawdata works on libusb [by commit](https://github.com/ilyakurdyukov/spreadtrum_flash/commit/ff12d48) (251030)
+* [Fix] crash when `savepath != NULL` (251031)
+* [Change] `GIT_VER` now uses commit count (251031)
+* [Change] update `gen_tos` algorithm (251104, 260109)
+* [Fix] correct spl size handling when using `-r` (251104)
+* [Fix] chsize, kick, and eMMC/UFS detection for ums9360/ums9632 (260103)
+* [Fix] potential bug in `load_partitions` (260414)
+* [Fix] `downloadnv` write operation (260205, 260418)
+
+   `factorynv` and `calinv` are **not writable**
