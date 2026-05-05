@@ -103,3 +103,4 @@ Notes:
 * [Fix] `downloadnv` write operation (260205, 260418)
 
    `factorynv` and `calinv` are **not writable**
+* [Change] set g_w_force = 1 when exec_addr > 0 (260505)
