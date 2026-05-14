@@ -1,0 +1,78 @@
+name: Build SPD Dump with musl
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build (default: main)'
+        required: false
+        default: 'main'
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        toolchain: [x86_64-unknown-linux-musl, aarch64-unknown-linux-musl]
+    steps:
+      - name: Install build dependencies
+        run: sudo apt-get update && sudo apt-get install -y tar autoconf automake libtool
+
+      - name: Setup SSH Keys
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+            ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Download musl toolchain
+        run: |
+          mkdir -p musl-data
+          curl -o toolchain.tar.xz -L $(curl -s https://api.github.com/repos/cross-tools/musl-cross/releases | grep -Po -m 1 '(?<=download_url\"\: \").*${{ matrix.toolchain }}.tar.xz')
+          tar -xJvf toolchain.tar.xz -C ./musl-data
+          rm toolchain.tar.xz
+
+      - name: Build libusb
+        run: |
+          export SYSROOT=$(realpath ./musl-data/${{ matrix.toolchain }})
+          export LIBUSB_VERSION=v1.0.30-rc2
+          wget -q "https://github.com/libusb/libusb/archive/refs/tags/${LIBUSB_VERSION}.tar.gz"
+          tar -xzf "${LIBUSB_VERSION}.tar.gz"
+          cd "libusb-${LIBUSB_VERSION#v}"
+          NOCONFIGURE=1 ./autogen.sh
+          ./configure --host="${{ matrix.toolchain }}" CC="${SYSROOT}/bin/${{ matrix.toolchain }}-gcc" --prefix="${SYSROOT}/${{ matrix.toolchain }}" --enable-static -disable-shared --disable-udev
+          make -j"$(nproc)"
+          sudo make install
+          ls -lh "${SYSROOT}/${{ matrix.toolchain }}/lib/libusb-1.0.a"
+
+      - name: Build libxml2
+        run: |
+          export SYSROOT=$(realpath ./musl-data/${{ matrix.toolchain }})
+          export LIBXML2_VERSION=v2.15.3
+          wget -q "https://github.com/GNOME/libxml2/archive/refs/tags/${LIBXML2_VERSION}.tar.gz"
+          tar -xzf "${LIBXML2_VERSION}.tar.gz"
+          cd "libxml2-${LIBXML2_VERSION#v}"
+          NOCONFIGURE=1 ./autogen.sh
+          ./configure --host="${{ matrix.toolchain }}" CC="${SYSROOT}/bin/${{ matrix.toolchain }}-gcc" --prefix="${SYSROOT}/${{ matrix.toolchain }}" --enable-static -disable-shared --with-iconv
+          make -j"$(nproc)"
+          sudo make install
+          ls -lh "${SYSROOT}/${{ matrix.toolchain }}/lib/libxml2.a"
+
+      - name: Build SPD Dump
+        run: |
+          export SYSROOT=$(realpath ./musl-data/${{ matrix.toolchain }})
+          git clone git@github.com:TomKing062/spd_dump_it.git
+          cd spd_dump_it
+          git checkout ${{ github.event.inputs.branch }}
+          echo "GIT_SHA1=$(git rev-parse HEAD)" >> $GITHUB_ENV
+          echo "GIT_VER=$(git rev-list HEAD --count)" >> $GITHUB_ENV
+          make MUSL_BUILD=1 CC="${SYSROOT}/bin/${{ matrix.toolchain }}-gcc" USER_PKG_CONFIG_PATH="${SYSROOT}/${{ matrix.toolchain }}/lib/pkgconfig"
+          mv spd_dump spd_dump-${{ matrix.toolchain }}
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: spd_dump_it_${{ env.GIT_VER }}_${{ env.GIT_SHA1 }}_${{ matrix.toolchain }}
+          path: ./spd_dump_it/spd_dump-${{ matrix.toolchain }}
+          archive: false
