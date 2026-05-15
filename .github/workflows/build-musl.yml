@@ -16,7 +16,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        branch: [main, oldpath]
         toolchain: [x86_64-unknown-linux-musl, aarch64-unknown-linux-musl]
+    if: |
+      (github.event_name == 'workflow_dispatch' && matrix.branch == github.event.inputs.branch) ||
+      (github.event_name == 'push')
     steps:
       - name: Install build dependencies
         run: sudo apt-get update && sudo apt-get install -y tar autoconf automake libtool
@@ -64,15 +68,15 @@ jobs:
           export SYSROOT=$(realpath ./musl-data/${{ matrix.toolchain }})
           git clone git@github.com:TomKing062/spd_dump_it.git
           cd spd_dump_it
-          git checkout ${{ github.event.inputs.branch }}
+          git checkout ${{ matrix.branch }}
           echo "GIT_SHA1=$(git rev-parse HEAD)" >> $GITHUB_ENV
-          echo "GIT_VER=$(git rev-list HEAD --count)" >> $GITHUB_ENV
+          echo "GIT_VER=${{ matrix.branch }}_$(git rev-list HEAD --count)" >> $GITHUB_ENV
           make MUSL_BUILD=1 CC="${SYSROOT}/bin/${{ matrix.toolchain }}-gcc" USER_PKG_CONFIG_PATH="${SYSROOT}/${{ matrix.toolchain }}/lib/pkgconfig"
-          mv spd_dump spd_dump-${{ matrix.toolchain }}
+          mv spd_dump spd_dump-${{ matrix.branch }}-${{ matrix.toolchain }}
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v7
         with:
           name: spd_dump_it_${{ env.GIT_VER }}_${{ env.GIT_SHA1 }}_${{ matrix.toolchain }}
-          path: ./spd_dump_it/spd_dump-${{ matrix.toolchain }}
+          path: ./spd_dump_it/spd_dump-${{ matrix.branch }}-${{ matrix.toolchain }}
           archive: false
