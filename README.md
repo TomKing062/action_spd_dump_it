@@ -27,6 +27,9 @@ if you use spd_dump with auto-unlock-batches, download oldpath version.
 
 * [Change] NAND flash check is now performed via check_partition() (251002)
 
+#### rawdata
+* [Feature] rawdata works on libusb [by commit](https://github.com/ilyakurdyukov/spreadtrum_flash/commit/ff12d48) (251030)
+
 ---
 
 ### New Commands
@@ -52,6 +55,10 @@ if you use spd_dump with auto-unlock-batches, download oldpath version.
 
    ex: `dis_avb_ex sml_or_teecfg tos`, which saves to tos-noavb-bsp-bypassed (not flash to device directly)
 
+   [read here for more info about dis_avb](https://github.com/TomKing062/unisoc_chipram_signcheck_exploit)
+
+   * [Change] update `gen_tos` algorithm used in dis_avb (251104, 260109)
+
 * [Command] `mergenv-xml xml new_nv` (251211)
 
    ex: `mergenv-xml-ex xml old_nv new_nv`, which saves to tmp/nvmerged (not flash to device directly)
@@ -63,6 +70,8 @@ if you use spd_dump with auto-unlock-batches, download oldpath version.
 * [Command] `g_w_force 0/1` to control `w_force` (260108)
 
 * [Command] `pac PAC_FILE` (support flashing PAC firmware, main branch only) (260222)
+
+   * fix crush when flashing PAC in SPRD4 (260521)
 
 Supported forms:
 
@@ -93,10 +102,9 @@ Notes:
 
 * [Fix] argc handling issue during SPRD4 (250905)
 * [Feature] add Ctrl+C handler during R/W operations (251002)
-* [Feature] add logging for fdl1/spl; rawdata works on libusb [by commit](https://github.com/ilyakurdyukov/spreadtrum_flash/commit/ff12d48) (251030)
+* [Change] add logging for fdl1/spl (251030)
 * [Fix] crash when `savepath != NULL` (251031)
 * [Change] `GIT_VER` now uses commit count (251031)
-* [Change] update `gen_tos` algorithm (251104, 260109)
 * [Fix] correct spl size handling when using `-r` (251104)
 * [Fix] chsize, kick, and eMMC/UFS detection for ums9360/ums9632 (260103)
 * [Fix] potential bug in `load_partitions` (260414)
@@ -104,3 +112,4 @@ Notes:
 
    `factorynv` and `calinv` are **not writable**
 * [Change] set g_w_force = 1 when exec_addr > 0 (260505)
+* [Fix] handle c_ptr and c_size in merge_nv() (260521)
