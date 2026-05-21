@@ -1,9 +1,9 @@
 # spd_dump_it
 so this is the close-source spd_dump, the open-source one will keep achieved.
 
-### [Prebuilt Program for Windows (Login Needed)](https://github.com/TomKing062/action_spd_dump_it/actions)
+### [Prebuilt Program for Windows](https://nightly.link/TomKing062/action_spd_dump_it/workflows/build/main)
 
-### [Prebuilt Program for Windows (No Login Needed; 404 Error Possible; Version May Not Be Latest)](https://nightly.link/TomKing062/action_spd_dump_it/workflows/build/main)
+### [Prebuilt Program for Linux](https://nightly.link/TomKing062/action_spd_dump_it/workflows/build-musl/main)
 
 ## Note
 

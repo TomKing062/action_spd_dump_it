@@ -83,4 +83,3 @@ jobs:
         with:
           name: spd_dump_it_${{ env.GIT_VER }}_${{ env.GIT_SHA1 }}_${{ matrix.toolchain }}
           path: ./spd_dump_it/spd_dump-${{ matrix.branch }}-${{ matrix.toolchain }}
-          archive: false
