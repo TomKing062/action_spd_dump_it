@@ -115,3 +115,4 @@ Notes:
 * [Fix] handle c_ptr and c_size in merge_nv() (260521)
 * [Fix] merge_nv() issue and ums9360/ums9632 downloadnv length issue (260525)
 * [Fix] put `system` and `super` into w_force whitelist for speed (260531)
+* [Feature] add EXTENDED Commands (260614)

@@ -60,6 +60,8 @@ jobs:
           cd spd_dump_it
           New-Item -ItemType Directory -Force -Path ./build/${{ matrix.arch }}/${{ matrix.config }}/
           msbuild spd_dump.vcxproj /p:Configuration=${{ matrix.config }} /p:Platform=${{ matrix.arch == 'x64' && 'x64' || 'win32' }} /p:OutDir=./build/${{ matrix.arch }}/${{ matrix.config }}/
+          Copy-Item -Path README.md -Destination ./build/${{ matrix.arch }}/${{ matrix.config }}/ -Force
+          Copy-Item -Path README_zh.md -Destination ./build/${{ matrix.arch }}/${{ matrix.config }}/ -Force
 
       - name: Upload Build Artifacts
         if: (github.event_name == 'workflow_dispatch' && matrix.branch == github.event.inputs.branch) || (github.event_name == 'push')
