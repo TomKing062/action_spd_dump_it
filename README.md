@@ -116,3 +116,4 @@ Notes:
 * [Fix] merge_nv() issue and ums9360/ums9632 downloadnv length issue (260525)
 * [Fix] put `system` and `super` into w_force whitelist for speed (260531)
 * [Feature] add EXTENDED Commands (260614)
+* [Fix] prevent nv lost by load downloadnv after matedata
