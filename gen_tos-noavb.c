@@ -18,10 +18,11 @@ static uint8_t *loadfile(const char *fn, size_t *num, size_t extra)
     {
         fseek(fi, 0, SEEK_END);
         n = ftell(fi);
-        if (n && extra <= SIZE_MAX - n)
+        size_t total = n + extra;
+        if (n && total >= n)
         {
             fseek(fi, 0, SEEK_SET);
-            buf = (uint8_t *)malloc(n + extra);
+            buf = (uint8_t *)malloc(total);
             if (buf)
                 j = fread(buf, 1, n, fi);
         }
