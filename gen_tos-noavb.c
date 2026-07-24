@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "sprdsec_header.h"
 
 #define ERR_EXIT(...)                 \
     do                                \
@@ -33,6 +34,29 @@ static uint8_t *loadfile(const char *fn, size_t *num, size_t extra)
     return buf;
 }
 
+#define max_size(x, y) ((x) > (y) ? (x) : (y))
+
+// For any DHTB data block, compute its true footprint including internal SIMGHDR footer + certs
+static size_t dhtb_data_size(const uint8_t *base, uint32_t mImgSize, size_t max_rel)
+{
+    size_t raw_end = 0x200 + mImgSize;
+    if (raw_end + sizeof(sprdsignedimageheader) > max_rel)
+        return raw_end;
+    const sprdsignedimageheader *pf = (const sprdsignedimageheader *)(base + raw_end);
+    // Parse SIMGHDR-style footer fields if present (magic is advisory, not enforced)
+    size_t max_end = raw_end + sizeof(sprdsignedimageheader);
+    #define check_seg(s, o) do { \
+        uint64_t ss = (s), so = (o); \
+        if (ss && so && so + ss > max_end && so + ss <= max_rel) \
+            max_end = (size_t)(so + ss); \
+    } while (0)
+    check_seg(pf->cert_size, pf->cert_offset);
+    check_seg(pf->priv_size, pf->priv_offset);
+    check_seg(pf->cert_dbg_developer_size, pf->cert_dbg_developer_offset);
+    #undef check_seg
+    return max_end;
+}
+
 int main(int argc, char **argv)
 {
     if (argc < 2)
@@ -51,20 +75,7 @@ int main(int argc, char **argv)
         ERR_EXIT("The file is not sprd trusted firmware\n");
     else if (!(*(uint32_t *)&mem[0x30]))
         ERR_EXIT("broken sprd trusted firmware\n");
-    if (*(uint32_t *)&mem[0x30] + 0x260 >= size)
-    {
-        printf("0x%zx\n", size);
-        free(mem);
-        return 0;
-    }
-    if (*(uint32_t *)&mem[(*(uint32_t *)&mem[0x30]) + 0x200 + 0x50] && *(uint32_t *)&mem[(*(uint32_t *)&mem[0x30]) + 0x200 + 0x58])
-        size = *(uint32_t *)&mem[(*(uint32_t *)&mem[0x30]) + 0x200 + 0x50] + *(uint32_t *)&mem[(*(uint32_t *)&mem[0x30]) + 0x200 + 0x58];
-    else if (*(uint32_t *)&mem[(*(uint32_t *)&mem[0x30]) + 0x200 + 0x30] && *(uint32_t *)&mem[(*(uint32_t *)&mem[0x30]) + 0x200 + 0x38])
-        size = *(uint32_t *)&mem[(*(uint32_t *)&mem[0x30]) + 0x200 + 0x30] + *(uint32_t *)&mem[(*(uint32_t *)&mem[0x30]) + 0x200 + 0x38];
-    else if (*(uint32_t *)&mem[(*(uint32_t *)&mem[0x30]) + 0x200 + 0x20] && *(uint32_t *)&mem[(*(uint32_t *)&mem[0x30]) + 0x200 + 0x28])
-        size = *(uint32_t *)&mem[(*(uint32_t *)&mem[0x30]) + 0x200 + 0x20] + *(uint32_t *)&mem[(*(uint32_t *)&mem[0x30]) + 0x200 + 0x28];
-    else
-        size = *(uint32_t *)&mem[0x30] + 0x200;
+    size = dhtb_data_size(mem, header->mImgSize, size);
     printf("0x%zx\n", size);
 
     FILE *file = fopen("temp", "wb");

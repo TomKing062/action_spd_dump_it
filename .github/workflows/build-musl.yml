@@ -41,7 +41,7 @@ jobs:
         if: (github.event_name == 'workflow_dispatch' && matrix.branch == github.event.inputs.branch) || (github.event_name == 'push')
         run: |
           export SYSROOT=$(realpath ./musl-data/${{ matrix.toolchain }})
-          export LIBUSB_VERSION=v1.0.30-rc2
+          export LIBUSB_VERSION=v1.0.30
           wget -q "https://github.com/libusb/libusb/archive/refs/tags/${LIBUSB_VERSION}.tar.gz"
           tar -xzf "${LIBUSB_VERSION}.tar.gz"
           cd "libusb-${LIBUSB_VERSION#v}"
