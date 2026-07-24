@@ -75,7 +75,7 @@ int main(int argc, char **argv)
         ERR_EXIT("The file is not sprd trusted firmware\n");
     else if (!(*(uint32_t *)&mem[0x30]))
         ERR_EXIT("broken sprd trusted firmware\n");
-    size = dhtb_data_size(mem, header->mImgSize, size);
+    size = dhtb_data_size(mem, *(uint32_t *)&mem[0x30], size);
     printf("0x%zx\n", size);
 
     FILE *file = fopen("temp", "wb");
