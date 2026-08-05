@@ -117,4 +117,5 @@ Notes:
 * [Fix] put `system` and `super` into w_force whitelist for speed (260531)
 * [Feature] add EXTENDED Commands (260614)
 * [Fix] prevent nv lost by load downloadnv after matedata (260625)
-* [Feature] add another set of EXTENDED Commands (260705)
+* [Feature] add another set of EXTENDED Commands (260705, main branch only)
+* [Feature] self-fix w_force in broken part-table (260806)
