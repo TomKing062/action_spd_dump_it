@@ -119,3 +119,4 @@ Notes:
 * [Fix] prevent nv lost by load downloadnv after matedata (260625)
 * [Feature] add another set of EXTENDED Commands (260705, main branch only)
 * [Feature] self-fix w_force in broken part-table (260806)
+* [Feature] -t|--tool for skip connection and local tool mode (260811)
