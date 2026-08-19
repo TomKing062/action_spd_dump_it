@@ -69,9 +69,11 @@ if you use spd_dump with auto-unlock-batches, download oldpath version.
 
 * [Command] `g_w_force 0/1` to control `w_force` (260108)
 
-* [Command] `pac PAC_FILE` (support flashing PAC firmware, main branch only) (260222)
+* [Command] `pac PAC_FILE` (main branch only)
 
+   * support flashing **partname-based (UBIFS / GPT table)** PAC firmware (260222)
    * fix crush when flashing PAC in SPRD4 (260521)
+   * legacy **ID-based (RDA table)** support added in v247 (260820)
 
 Supported forms:
 
@@ -84,8 +86,6 @@ spd_dump exec_addr <addr> fdl <fdl1> <addr1> fdl <fdl2> <addr2> exec pac <PAC> r
 Notes:
 
 * supports custom FDL during flashing
-* only supports **partname-based partition table** (UBIFS / GPT)
-* legacy **ID-based (RDA) table** not supported
 * region/OCDT selection (e.g. OPPO/Realme PAC) not supported
 
 ---
