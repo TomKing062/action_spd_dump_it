@@ -74,6 +74,7 @@ if you use spd_dump with auto-unlock-batches, download oldpath version.
    * support flashing **partname-based (UBIFS / GPT table)** PAC firmware (260222)
    * fix crush when flashing PAC in SPRD4 (260521)
    * legacy **ID-based (RDA table)** support added in v247 (260820)
+   * use fdl addr in xml instead of sprd_file_t (260829)
 
 Supported forms:
 
