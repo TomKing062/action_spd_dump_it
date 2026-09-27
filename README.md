@@ -121,3 +121,4 @@ Notes:
 * [Feature] add another set of EXTENDED Commands (260705, main branch only)
 * [Feature] self-fix w_force in broken part-table (260806)
 * [Feature] -t|--tool for skip connection and local tool mode (260811)
+* [Fix] fix packet parsing caused by e2 loaders (260927)
