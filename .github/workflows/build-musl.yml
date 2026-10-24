@@ -33,7 +33,8 @@ jobs:
         if: (github.event_name == 'workflow_dispatch' && matrix.branch == github.event.inputs.branch) || (github.event_name == 'push')
         run: |
           mkdir -p musl-data
-          curl -o toolchain.tar.xz -L $(curl -s https://api.github.com/repos/cross-tools/musl-cross/releases | grep -Po -m 1 '(?<=download_url\"\: \").*${{ matrix.toolchain }}.tar.xz')
+          curl -fL --retry 3 --retry-delay 2 -o toolchain.tar.xz \
+            "https://github.com/cross-tools/musl-cross/releases/latest/download/${{ matrix.toolchain }}.tar.xz"
           tar -xJvf toolchain.tar.xz -C ./musl-data
           rm toolchain.tar.xz
 
