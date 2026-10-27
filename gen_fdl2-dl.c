@@ -10,11 +10,13 @@ typedef struct {
 
 typedef struct {
     const char     *name;      /* human-readable variant name       */
+    const char     *arch;      /* "aarch64" / "arm32" (informational)*/
     unsigned        func_len;  /* template total length in bytes    */
     unsigned        patch_off; /* offset of block to NOP            */
     unsigned        patch_len; /* number of bytes to NOP            */
     const tpl_entry_t *ent;    /* fixed-byte entries                */
     unsigned        ent_n;
+    const unsigned char *nop;  /* 4-byte NOP encoding for this arch */
 } patch_tpl_t;
 
 /* ---------------- v1 template (16-byte patch @ +0x20) ---------------- */
@@ -38,7 +40,7 @@ static const tpl_entry_t ENT_V1[] = {
 };
 #define ENT_V1_N (sizeof(ENT_V1)/sizeof(ENT_V1[0]))
 
-/* ---------------- v2 template (24-byte patch @ +0x34) ---------------- */
+/* ---------------- v2 template (20-byte patch @ +0x38) ---------------- */
 static const tpl_entry_t ENT_V2[] = {
     { 0x00, { 0xFD,0x7B,0xBE,0xA9 }, 0 },  /* stp  x29,x30,[sp,#-0x20]! */
     { 0x04, { 0xFD,0x03,0x00,0x91 }, 0 },  /* mov  x29,sp               */
@@ -66,13 +68,34 @@ static const tpl_entry_t ENT_V2[] = {
 };
 #define ENT_V2_N (sizeof(ENT_V2)/sizeof(ENT_V2[0]))
 
+/* ---------------- arm32 v1 template (24-byte patch @ +0x14) ---------------- */
+static const tpl_entry_t ENT_ARM_V1[] = {
+    { 0x00, { 0x38,0x40,0x2D,0xE9 }, 0 },  /* push {r3-r5,lr}           */
+    { 0x04, { 0x00,0x50,0xA0,0xE1 }, 0 },  /* mov  r5,r0                */
+    { 0x08, { 0,0,0,0 },              1 },  /* ldr  r4,=<list>   (PC-rel)*/
+    { 0x0C, { 0x04,0x00,0xB4,0xE5 }, 0 },  /* ldr  r0,[r4,#4]!          */
+    { 0x10, { 0x05,0x10,0xA0,0xE1 }, 0 },  /* mov  r1,r5                */
+    { 0x14, { 0,0,0,0 },              1 },  /* bl   <strcmp>     (PC-rel)*/
+    { 0x18, { 0x00,0x00,0x50,0xE3 }, 0 },  /* cmp  r0,#0                */
+    { 0x1C, { 0x38,0x80,0xBD,0x08 }, 0 },  /* popeq {r3-r5,pc}          */
+    { 0x20, { 0x04,0x30,0x94,0xE5 }, 0 },  /* ldr  r3,[r4,#4]           */
+    { 0x24, { 0x00,0x00,0x53,0xE3 }, 0 },  /* cmp  r3,#0                */
+    { 0x28, { 0xF7,0xFF,0xFF,0x1A }, 0 },  /* bne  -0x24                */
+    { 0x2C, { 0x01,0x00,0xA0,0xE3 }, 0 },  /* mov  r0,#1   (success)    */
+    { 0x30, { 0x38,0x80,0xBD,0xE8 }, 0 },  /* pop  {r3-r5,pc}           */
+};
+#define ENT_ARM_V1_N (sizeof(ENT_ARM_V1)/sizeof(ENT_ARM_V1[0]))
+
+/* NOP encodings (4 bytes each) */
+static const unsigned char NOP_AARCH64[4] = { 0x1F,0x20,0x03,0xD5 }; /* nop        */
+static const unsigned char NOP_ARM32[4]   = { 0x00,0x00,0xA0,0xE1 }; /* mov r0,r0  */
+
 static const patch_tpl_t TPLS[] = {
-    { "v1 (16B @ +0x20)", 0x40, 0x20, 16, ENT_V1, ENT_V1_N },
-    { "v2 (20B @ +0x38)", 0x5C, 0x38, 20, ENT_V2, ENT_V2_N },
+    { "v1 (16B @ +0x20)",     "aarch64", 0x40, 0x20, 16, ENT_V1,     ENT_V1_N,     NOP_AARCH64 },
+    { "v2 (20B @ +0x38)",     "aarch64", 0x5C, 0x38, 20, ENT_V2,     ENT_V2_N,     NOP_AARCH64 },
+    { "arm32 v1 (24B @ +0x14)","arm32",  0x34, 0x14, 24, ENT_ARM_V1, ENT_ARM_V1_N, NOP_ARM32   },
 };
 #define TPLS_N (sizeof(TPLS)/sizeof(TPLS[0]))
-
-static const unsigned char NOP4[4] = { 0x1F,0x20,0x03,0xD5 };
 
 static int match_at(const unsigned char *buf, size_t pos, const patch_tpl_t *t)
 {
@@ -175,6 +198,7 @@ int main(int argc, char **argv)
 
     printf("[result] %s (%ld bytes)\n", path, fsize);
     printf("[result] template    = %s\n", found->name);
+    printf("[result] arch        = %s\n", found->arch);
     printf("[result] func_offset = 0x%zX\n", found_pos);
     printf("[result] patch_point = 0x%zX   (func+0x%X)\n",
            found_pos + found->patch_off, found->patch_off);
@@ -184,7 +208,7 @@ int main(int argc, char **argv)
         printf("%02X ", buf[found_pos + found->patch_off + i]);
     printf("\n[result] patch bytes = ");
     for (i = 0; i < found->patch_len; i++)
-        printf("%02X ", NOP4[i & 3]);
+        printf("%02X ", found->nop[i & 3]);
     printf("(NOPs -> force mov w0,#1 success path)\n");
 
     if (dry) {
@@ -219,7 +243,7 @@ int main(int argc, char **argv)
         }
 
         for (i = 0; i < found->patch_len; i++)
-            buf[found_pos + found->patch_off + i] = NOP4[i & 3];
+            buf[found_pos + found->patch_off + i] = found->nop[i & 3];
 
         fout = fopen(out, "wb");
         if (!fout) {
