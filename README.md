@@ -51,11 +51,11 @@ if you use spd_dump with auto-unlock-batches, download oldpath version.
   * CRC and transcode handled internally
   * requires file
 
-* [Command] `pwnexec` (261024)
+* [Command] `pwnexec` (261024, handshake fixed on 261128)
 
    CVE-2022-38693 reborn for ums9360/ums9632
 
-   eg: `spd_dump fdl fdl1-sign.bin ADDR1 fdl custom_fdl2.bin ADDR2 pwnexec`
+   eg: `spd_dump fdl fdl1-sign.bin ADDR1 fdl custom_fdl2.bin ADDR2 pwnexec 9360|9632`
 
 * [Command] `dis_avb` (251013, 260108)
 
